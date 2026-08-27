@@ -1,0 +1,6 @@
+{
+  "name": "Kasir POS",
+  "description": "Aplikasi Kasir POS lengkap dan profesional dengan fitur manajemen stok, riwayat transaksi, dan laporan penjualan akurat secara real-time. Full Offline.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
