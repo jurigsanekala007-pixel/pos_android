@@ -41,7 +41,10 @@ object ReceiptPdfGenerator {
         context: Context,
         transactionWithItems: TransactionWithItems,
         storeSettings: StoreSettingsEntity?,
-        paperSize: ReceiptPaperSize = ReceiptPaperSize.THERMAL_58MM
+        paperSize: ReceiptPaperSize = ReceiptPaperSize.THERMAL_58MM,
+        customStoreName: String? = null,
+        customAddress: String? = null,
+        customTextLogo: String? = null
     ): File? {
         val trx = transactionWithItems.transaction
         val items = transactionWithItems.items
@@ -65,6 +68,18 @@ object ReceiptPdfGenerator {
                 ReceiptPaperSize.STANDARD_A4 -> 11f
             }
             typeface = Typeface.MONOSPACE
+        }
+
+        val logoPaint = Paint().apply {
+            color = Color.DKGRAY
+            isAntiAlias = true
+            textSize = when (paperSize) {
+                ReceiptPaperSize.THERMAL_58MM -> 10f
+                ReceiptPaperSize.THERMAL_80MM -> 12f
+                ReceiptPaperSize.STANDARD_A4 -> 14f
+            }
+            typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
+            textAlign = Paint.Align.CENTER
         }
 
         val titlePaint = Paint().apply {
@@ -129,9 +144,16 @@ object ReceiptPdfGenerator {
             style = Paint.Style.STROKE
         }
 
+        val logoBorderPaint = Paint().apply {
+            color = Color.DKGRAY
+            strokeWidth = 1f
+            style = Paint.Style.STROKE
+        }
+
         // Calculate estimated height dynamically
         val lineHeight = textPaint.textSize + 4f
         var estimatedHeight = margin * 2 + 100f // store header
+        if (!customTextLogo.isNullOrBlank()) estimatedHeight += 40f
         estimatedHeight += 90f // meta rows
         estimatedHeight += (items.size * (lineHeight * 2.5f + 8f)) // item lines
         estimatedHeight += 120f // calculation & total
@@ -154,14 +176,30 @@ object ReceiptPdfGenerator {
 
         var y = margin + 14f
 
-        // 1. Store Header
-        val storeName = storeSettings?.storeName ?: "KASIR POS OFFLINE"
-        canvas.drawText(storeName, width / 2f, y, titlePaint)
+        // 1. Text Logo (if configured)
+        if (!customTextLogo.isNullOrBlank()) {
+            val logoText = customTextLogo.trim()
+            val textWidth = logoPaint.measureText(logoText)
+            val boxPaddingH = 12f
+            val boxPaddingV = 4f
+            val boxLeft = (width / 2f) - (textWidth / 2f) - boxPaddingH
+            val boxRight = (width / 2f) + (textWidth / 2f) + boxPaddingH
+            val boxTop = y - logoPaint.textSize + 2f
+            val boxBottom = y + boxPaddingV + 2f
+
+            canvas.drawRoundRect(boxLeft, boxTop, boxRight, boxBottom, 4f, 4f, logoBorderPaint)
+            canvas.drawText(logoText, width / 2f, y, logoPaint)
+            y += logoPaint.textSize + 12f
+        }
+
+        // 2. Store Header
+        val finalStoreName = if (!customStoreName.isNullOrBlank()) customStoreName.trim() else storeSettings?.storeName ?: "KASIR POS OFFLINE"
+        canvas.drawText(finalStoreName, width / 2f, y, titlePaint)
         y += titlePaint.textSize + 3f
 
-        val address = storeSettings?.address
-        if (!address.isNullOrBlank()) {
-            val addressLines = wrapText(address, contentWidth, headerPaint)
+        val finalAddress = if (!customAddress.isNullOrBlank()) customAddress.trim() else storeSettings?.address
+        if (!finalAddress.isNullOrBlank()) {
+            val addressLines = wrapText(finalAddress, contentWidth, headerPaint)
             for (line in addressLines) {
                 canvas.drawText(line, width / 2f, y, headerPaint)
                 y += headerPaint.textSize + 2f
@@ -402,9 +440,20 @@ object ReceiptPdfGenerator {
         context: Context,
         transactionWithItems: TransactionWithItems,
         storeSettings: StoreSettingsEntity?,
-        paperSize: ReceiptPaperSize = ReceiptPaperSize.THERMAL_58MM
+        paperSize: ReceiptPaperSize = ReceiptPaperSize.THERMAL_58MM,
+        customStoreName: String? = null,
+        customAddress: String? = null,
+        customTextLogo: String? = null
     ) {
-        val pdfFile = generateReceiptPdf(context, transactionWithItems, storeSettings, paperSize)
+        val pdfFile = generateReceiptPdf(
+            context = context,
+            transactionWithItems = transactionWithItems,
+            storeSettings = storeSettings,
+            paperSize = paperSize,
+            customStoreName = customStoreName,
+            customAddress = customAddress,
+            customTextLogo = customTextLogo
+        )
         if (pdfFile == null || !pdfFile.exists()) {
             Toast.makeText(context, "Gagal membuat dokumen struk cetak", Toast.LENGTH_SHORT).show()
             return
@@ -499,9 +548,20 @@ object ReceiptPdfGenerator {
         context: Context,
         transactionWithItems: TransactionWithItems,
         storeSettings: StoreSettingsEntity?,
-        paperSize: ReceiptPaperSize = ReceiptPaperSize.THERMAL_58MM
+        paperSize: ReceiptPaperSize = ReceiptPaperSize.THERMAL_58MM,
+        customStoreName: String? = null,
+        customAddress: String? = null,
+        customTextLogo: String? = null
     ) {
-        val pdfFile = generateReceiptPdf(context, transactionWithItems, storeSettings, paperSize)
+        val pdfFile = generateReceiptPdf(
+            context = context,
+            transactionWithItems = transactionWithItems,
+            storeSettings = storeSettings,
+            paperSize = paperSize,
+            customStoreName = customStoreName,
+            customAddress = customAddress,
+            customTextLogo = customTextLogo
+        )
         if (pdfFile == null || !pdfFile.exists()) {
             Toast.makeText(context, "Gagal membuat berkas PDF struk", Toast.LENGTH_SHORT).show()
             return
@@ -539,9 +599,20 @@ object ReceiptPdfGenerator {
         context: Context,
         transactionWithItems: TransactionWithItems,
         storeSettings: StoreSettingsEntity?,
-        paperSize: ReceiptPaperSize = ReceiptPaperSize.THERMAL_58MM
+        paperSize: ReceiptPaperSize = ReceiptPaperSize.THERMAL_58MM,
+        customStoreName: String? = null,
+        customAddress: String? = null,
+        customTextLogo: String? = null
     ) {
-        val pdfFile = generateReceiptPdf(context, transactionWithItems, storeSettings, paperSize)
+        val pdfFile = generateReceiptPdf(
+            context = context,
+            transactionWithItems = transactionWithItems,
+            storeSettings = storeSettings,
+            paperSize = paperSize,
+            customStoreName = customStoreName,
+            customAddress = customAddress,
+            customTextLogo = customTextLogo
+        )
         if (pdfFile == null || !pdfFile.exists()) {
             Toast.makeText(context, "Gagal membuat berkas PDF struk", Toast.LENGTH_SHORT).show()
             return

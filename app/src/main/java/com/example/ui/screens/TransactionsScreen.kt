@@ -819,7 +819,8 @@ fun TransactionsScreen(
         ReceiptDialog(
             transactionWithItems = uiState.selectedTransactionDetail!!,
             storeSettings = storeSettings,
-            onDismiss = { viewModel.dismissTransactionDetail() }
+            onDismiss = { viewModel.dismissTransactionDetail() },
+            onSaveStoreSettings = { viewModel.saveStoreSettings(it) }
         )
     }
 

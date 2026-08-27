@@ -68,16 +68,22 @@ object FormatUtils {
 
     fun generateShareableReceipt(
         trxWithItems: TransactionWithItems,
-        storeSettings: StoreSettingsEntity?
+        storeSettings: StoreSettingsEntity?,
+        customStoreName: String? = null,
+        customAddress: String? = null,
+        customTextLogo: String? = null
     ): String {
         val trx = trxWithItems.transaction
-        val storeName = storeSettings?.storeName ?: "Kasir POS"
-        val address = storeSettings?.address ?: ""
+        val storeName = if (!customStoreName.isNullOrBlank()) customStoreName.trim() else storeSettings?.storeName ?: "Kasir POS"
+        val address = if (!customAddress.isNullOrBlank()) customAddress.trim() else storeSettings?.address ?: ""
         val phone = storeSettings?.phone ?: ""
         val footer = storeSettings?.receiptFooter ?: "Terima Kasih!"
 
         val sb = StringBuilder()
         sb.append("================================\n")
+        if (!customTextLogo.isNullOrBlank()) {
+            sb.append("     ${customTextLogo.trim()}\n")
+        }
         sb.append("        $storeName\n")
         if (address.isNotEmpty()) sb.append("   $address\n")
         if (phone.isNotEmpty()) sb.append("       Telp: $phone\n")

@@ -98,7 +98,8 @@ fun PosMainApp(viewModel: PosViewModel) {
                 storeSettings = storeSettings,
                 cartItemCount = uiState.cartItemCount,
                 lowStockCount = lowStockCount,
-                onCartClick = { viewModel.setCartOpen(true) }
+                onCartClick = { viewModel.setCartOpen(true) },
+                onLowStockClick = { viewModel.navigateTo(PosScreen.INVENTORY) }
             )
         },
         bottomBar = {
@@ -264,7 +265,8 @@ fun PosMainApp(viewModel: PosViewModel) {
         ReceiptDialog(
             transactionWithItems = uiState.completedReceipt!!,
             storeSettings = storeSettings,
-            onDismiss = { viewModel.dismissReceipt() }
+            onDismiss = { viewModel.dismissReceipt() },
+            onSaveStoreSettings = { viewModel.saveStoreSettings(it) }
         )
     }
 }

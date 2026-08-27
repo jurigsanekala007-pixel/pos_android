@@ -1,6 +1,7 @@
 package com.example.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -45,6 +46,7 @@ fun PosAppBar(
     cartItemCount: Int = 0,
     lowStockCount: Int = 0,
     onCartClick: () -> Unit = {},
+    onLowStockClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Surface(
@@ -117,7 +119,11 @@ fun PosAppBar(
                             Surface(
                                 shape = RoundedCornerShape(4.dp),
                                 color = PosWarningContainer,
-                                modifier = Modifier.padding(top = 2.dp)
+                                modifier = Modifier
+                                    .padding(top = 2.dp)
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .clickable { onLowStockClick() }
+                                    .testTag("appbar_low_stock_badge")
                             ) {
                                 Row(
                                     modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
